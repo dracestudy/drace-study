@@ -1,0 +1,997 @@
+/*******************************************************************************
+ * Copyright (c) 2013 University of Illinois
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ ******************************************************************************/
+package com.runtimeverification.rvpredict.config;
+
+import com.beust.jcommander.*;
+import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
+import com.runtimeverification.rvpredict.util.Constants;
+import com.runtimeverification.rvpredict.util.Logger;
+
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.CodeSource;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.apache.tools.ant.util.JavaEnvUtils;
+
+/**
+ * Command line options class for rv-predict Used by JCommander to parse the
+ * main program parameters.
+ */
+public class Configuration implements Constants {
+
+  public static final String LOGGING_PHASE_COMPLETED = "Logging phase completed.";
+  public static final String TRACE_LOGGED_IN = "\tTrace logged in: ";
+  public static final String INSTRUMENTED_EXECUTION_TO_RECORD_THE_TRACE = "Instrumented execution to record the trace";
+
+  private static final String SEPARATOR = System.getProperty("file.separator");
+  public static final String JAVA_EXECUTABLE = JavaEnvUtils.getJreExecutable("java");
+  public static final String RV_PREDICT_JAR = Configuration.getBasePath() + SEPARATOR + "rv-predict.jar";
+
+  public static final String TRACE_SUFFIX = "trace.bin";
+  private static final String COMPACT_TRACE_FILE_NAME = "rvpredict.trace";
+
+  public static final String METADATA_BIN = "metadata.bin";
+
+  public static final String Z3_PATH = "z3lib";
+
+  private static final List<String> LLVM_LIB_STRINGS = Arrays.asList(new String[] {
+      "__libc",
+      "__lib_",
+      "tsan__",
+      "__tsan",
+      "<null>",
+      "/usr/lib/",
+      "/usr/bin/../lib/", // TBD normalize paths, instead?
+      "llvm/projects/compiler-rt"
+  });
+
+  /**
+   * Packages/classes that need to be excluded from instrumentation. These are
+   * not configurable by the users because including them for instrumentation
+   * almost certainly leads to crash.
+   */
+  public static List<Pattern> IGNORES;
+  static {
+    String[] ignores = new String[] {
+        RVPREDICT_PKG_PREFIX,
+
+        // lz4 library cannot be repackaged because it hard-codes some
+        // of its class names in the implementation
+        "net/jpountz/",
+
+        // z3 native library cannot be repackaged
+        "com/microsoft/z3",
+
+        // array type
+        "[",
+
+        // immutable classes
+        "cOm/google/common/collect/Immutable".replace("O", "o"), // hack to trick the repackage tool
+        "scala/collection/immutable/",
+
+        // Basics of the JDK that everything else is depending on
+        "sun/",
+        "com/sun",
+        "java/",
+        "jdk/internal"
+    };
+    IGNORES = getDefaultPatterns(ignores);
+  }
+
+  public final static String[] MOCKS = new String[] {
+      "java/util/Collection",
+      "java/util/Map",
+      "java/util/Iterator",
+      // we don't want to instrument any ClassLoader or SecurityManager: issue#512
+      "java/lang/ClassLoader",
+      "java/lang/SecurityManager"
+  };
+
+  public final static Set<String> MUST_REPLACE = new HashSet<>(Arrays.asList(
+      "java/util/concurrent/atomic/AtomicBoolean",
+      "java/util/concurrent/atomic/AtomicInteger",
+      // TODO: handle the other AtomicX classes
+      "java/util/concurrent/locks/AbstractQueuedSynchronizer",
+      "java/util/concurrent/locks/AbstractQueuedLongSynchronizer",
+      "java/util/concurrent/locks/ReentrantLock",
+      "java/util/concurrent/locks/ReentrantReadWriteLock",
+      // TODO: handle StampedLock from Java 8
+      "java/util/concurrent/ArrayBlockingQueue",
+      "java/util/concurrent/LinkedBlockingQueue",
+      "java/util/concurrent/PriorityBlockingQueue",
+      "java/util/concurrent/SynchronousQueue",
+      // TODO: handle the other BlockingQueue's
+      "java/util/concurrent/Semaphore",
+      "java/util/concurrent/CountDownLatch",
+      "java/util/concurrent/CyclicBarrier",
+      "java/util/concurrent/Exchanger",
+      // TODO: handle Phaser
+      "java/util/concurrent/FutureTask",
+      // TODO: handle CompletableFuture from Java 8
+      "java/util/concurrent/ThreadPoolExecutor",
+      "java/util/concurrent/ScheduledThreadPoolExecutor",
+      "java/util/concurrent/RejectedExecutionHandler",
+      "java/util/concurrent/Executors"));
+
+  public final static Pattern MUST_REPLACE_QUICK_TEST_PATTERN = Pattern
+      .compile("java/util/concurrent");
+
+  public final static List<Pattern> MUST_INCLUDES;
+  static {
+    String[] mustIncludes = new String[] {
+        "java/security/cert/X509Certificate", "sun/security", // fix issue #556
+
+        /*
+         * fix issue #553: include as few classes as possible when removing false alarms
+         */
+        "sun/nio/ch/AsynchronousChannelGroupImpl",
+        "sun/nio/ch/Port",
+        "sun/nio/ch/ThreadPool",
+
+        "com/runtimeverification/rvpredict/runtime/java/util/concurrent/CyclicBarrier"
+    };
+    MUST_INCLUDES = getDefaultPatterns(mustIncludes);
+  }
+
+  public final List<Pattern> includeList = new ArrayList<>();
+  public final List<Pattern> excludeList = new ArrayList<>();
+  public final List<String> suppressList = new ArrayList<>();
+  public final List<Pattern> patternExcludeList = new ArrayList<>();
+  public Pattern suppressPattern;
+
+  private JCommander jCommander;
+
+  private static Pattern createClassPattern(String pattern) {
+    pattern = pattern.replace('.', '/');
+    String escapeChars[] = new String[] { "$", "[" };
+    for (String c : escapeChars) {
+      pattern = pattern.replace(c, "\\" + c);
+    }
+    return Pattern.compile(pattern.replace("*", ".*") + ".*");
+  }
+
+  public static String getBasePath() {
+    CodeSource codeSource = Configuration.class.getProtectionDomain().getCodeSource();
+    String path;
+    if (codeSource == null) {
+      path = ClassLoader.getSystemClassLoader()
+          .getResource(Configuration.class.getName().replace('.', '/') + ".class").toString();
+      path = path.substring(path.indexOf("file:"), path.indexOf('!'));
+      URL url = null;
+      try {
+        url = new URL(path);
+      } catch (MalformedURLException e) {
+        e.printStackTrace();
+      }
+      path = url.getPath();
+    } else {
+      path = codeSource.getLocation().getPath();
+    }
+    path = new File(path).getAbsolutePath();
+    try {
+      String decodedPath = URLDecoder.decode(path, "UTF-8");
+      File parent = new File(decodedPath).getParentFile();
+      return parent.getAbsolutePath();
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Checks whether a program location corresponds to a library location which
+   * should be excluded
+   * from the Race report by default.
+   *
+   * @param locSig string describing the program location
+   */
+  public boolean isExcludedLibrary(String locSig) {
+    if (!isLLVMPrediction())
+      return false;
+    if (libStacks)
+      return false;
+    return LLVM_LIB_STRINGS.stream().anyMatch(locSig::contains);
+  }
+
+  private void initIncludeList() {
+    if (includes != null) {
+      for (String include : includes.replace('.', '/').split(",")) {
+        if (include.isEmpty())
+          continue;
+        includeList.add(createClassPattern(include));
+      }
+    }
+  }
+
+  private void initExcludeList() {
+    if (excludes != null) {
+      for (String exclude : excludes.replace('.', '/').split(",")) {
+        if (exclude.isEmpty())
+          continue;
+        excludeList.add(createClassPattern(exclude));
+      }
+
+      for (Pattern exclude : excludeList) {
+          patternExcludeList.add(Pattern.compile(exclude.toString().replace('/', '.')));
+      }
+    }
+  }
+
+  private void initSuppressPattern() {
+    suppressList.addAll(Arrays.asList(suppress.split(",")).stream().map(s -> s.trim())
+        .filter(s -> !s.isEmpty()).collect(Collectors.toList()));
+    suppressPattern = Pattern.compile(Joiner.on("|").join(suppressList));
+  }
+
+  /**
+   * Creates a {@link java.util.regex.Pattern} list from a String array
+   * describing packages/classes using file pattern conventions ({@code *}
+   * stands for a sequence of characters)
+   *
+   * @param patterns the array of package/class descriptions
+   * @return A {@link java.util.regex.Pattern} list which matches
+   *         names specified by the given argument
+   */
+  public static List<Pattern> getDefaultPatterns(String[] patterns) {
+    List<Pattern> patternList = new ArrayList<>();
+    for (String pattern : patterns) {
+      patternList.add(createClassPattern(pattern));
+    }
+    return patternList;
+  }
+
+  public boolean isHappensBefore() {
+    return happens_before;
+  }
+
+  public boolean isDummy() {
+    return dummy;
+  }
+
+  public boolean isSHB() {
+    return shb;
+  }
+
+  public boolean isWCP() {
+    return wcp;
+  }
+
+  public boolean isHBEpoch() {
+    return hbepoch;
+  }
+
+  public boolean isSHBEpoch() {
+    return shbepoch;
+  }
+
+  public boolean isSyncPreserving() {
+    return syncp;
+  }
+
+  public boolean isFHB() {
+    return fhb;
+  }
+
+  public boolean isGoldilocks() {
+    return goldilocks;
+  }
+
+  public boolean isLockset() {
+    return lockset;
+  }
+
+  public boolean isWindowed() {
+    return !no_window;
+  }
+
+  public enum OS {
+    OSX(true), LINUX(true), UNKNOWN(false), WINDOWS(false);
+
+    private OS(boolean isPosix) {
+      this.isPosix = isPosix;
+    }
+
+    public final boolean isPosix;
+
+    public static OS current() {
+      String osString = System.getProperty("os.name").toLowerCase();
+      if (osString.contains("nix") || osString.contains("nux"))
+        return OS.LINUX;
+      else if (osString.contains("win"))
+        return OS.WINDOWS;
+      else if (osString.contains("mac"))
+        return OS.OSX;
+      else
+        return OS.UNKNOWN;
+    }
+
+    public String getNativeExecutable(String executable) {
+      if (this == UNKNOWN) {
+        System.err.println("Unknown OS type. " + System.getProperty("os.name")
+            + " not recognized. "
+            + "Please contact RV-Predict developers with details of your OS.");
+        System.exit(1);
+      }
+      if (this == WINDOWS) {
+        executable = executable + ".exe";
+      }
+      return executable;
+    }
+
+    public String getLibraryPathEnvVar() {
+      if (this == WINDOWS) {
+        return "PATH";
+      } else if (this == OSX) {
+        return "DYLD_LIBRARY_PATH";
+      } else {
+        return "LD_LIBRARY_PATH";
+      }
+    }
+  }
+
+  public enum TestScope {
+    NONE,
+    CLASS,
+    METHOD
+  }
+
+  private TestScope parsedTestScope = TestScope.NONE;
+
+  private void initTestScope() {
+    String value = testScope == null ? "" : testScope.trim().toLowerCase(Locale.ROOT);
+    if (value.isEmpty()) {
+      parsedTestScope = TestScope.NONE;
+    } else if (value.equals("class")) {
+      parsedTestScope = TestScope.CLASS;
+    } else if (value.equals("method")) {
+      parsedTestScope = TestScope.METHOD;
+    } else {
+      System.err.println("Error: --test-scope must be 'class' or 'method'.");
+      System.exit(1);
+    }
+  }
+
+  public boolean resetAfterTestClass() {
+    return parsedTestScope == TestScope.CLASS;
+  }
+
+  public boolean resetAfterTestMethod() {
+    return parsedTestScope == TestScope.METHOD;
+  }
+
+  private static final String RV_PREDICT = "rv-predict";
+
+  private String[] args;
+  private String[] rvpredictArgs;
+  @Parameter(description = "[java_options] <java_command_line>")
+  private List<String> javaArgs = new ArrayList<>();
+
+  private final static String ONLINE_PREDICTION = "ONLINE_PREDICTION";
+  private final static String OFFLINE_PREDICTION = "OFFLINE_PREDICTION";
+  private static final String LLVM_PREDICTION = "LLVM_PREDICTION";
+  private String prediction;
+
+  private boolean log;
+
+  private String logDir;
+
+  public final static String opt_no_window = "--no-window";
+  @Parameter(names = opt_no_window, description = "Do not use windowing", hidden = false, descriptionKey = "0000")
+  private boolean no_window = false;
+
+  public final static String opt_dummy = "--dummy";
+  @Parameter(names = opt_dummy, description = "Run prediction using a dummy race detector", hidden = false, descriptionKey = "0010")
+  private boolean dummy = false;
+
+  public final static String opt_shb = "--shb";
+  @Parameter(names = opt_shb, description = "Run prediction using SHB", hidden = false, descriptionKey = "0011")
+  private boolean shb = false;
+
+  public final static String opt_fhb = "--fhb";
+  @Parameter(names = opt_fhb, description = "Run prediction using FHB", hidden = false, descriptionKey = "0012")
+  private boolean fhb = false;
+
+  public final static String opt_lockset = "--lockset";
+  @Parameter(names = opt_lockset, description = "Run prediction using Lockset", hidden = false, descriptionKey = "0014")
+  private boolean lockset = false;
+
+  public final static String opt_goldilocks = "--goldilocks";
+  @Parameter(names = opt_goldilocks, description = "Run prediction using Goldilocks", hidden = false, descriptionKey = "0015")
+  private boolean goldilocks = false;
+
+  public final static String opt_shbepoch = "--shbepoch";
+  @Parameter(names = opt_shbepoch, description = "Run prediction using SHB Epoch", hidden = false, descriptionKey = "0016")
+  private boolean shbepoch = false;
+
+  public final static String opt_hbepoch = "--hbepoch";
+  @Parameter(names = opt_hbepoch, description = "Run prediction using HB Epoch", hidden = false, descriptionKey = "0017")
+  private boolean hbepoch = false;
+
+  public final static String opt_wcp = "--wcp";
+  @Parameter(names = opt_wcp, description = "Run prediction using WCP", hidden = false, descriptionKey = "0018")
+  private boolean wcp = false;
+
+  public final static String opt_syncp = "--syncp";
+  @Parameter(names = opt_syncp, description = "Run prediction using Syncpreserving", hidden = false, descriptionKey = "0019")
+  private boolean syncp = false;
+
+  public final static String opt_offline = "--offline";
+  @Parameter(names = opt_offline, description = "Run prediction offline", hidden = true, descriptionKey = "1000")
+  private boolean offline;
+
+  public final static String opt_only_log = "--log";
+  @Parameter(names = opt_only_log, description = "Log execution trace without running prediction", hidden = true, descriptionKey = "1100")
+  private boolean only_log = false;
+
+  public final static String opt_only_predict = "--predict";
+  @Parameter(names = opt_only_predict, description = "Run prediction on logs from the given directory", hidden = true, descriptionKey = "1200")
+  private String predict_dir = null;
+
+  public final static String opt_happens_before = "--hb";
+  @Parameter(names = opt_happens_before, description = "Run prediction using the Happens Before ordering", hidden = true, descriptionKey = "1250")
+  private boolean happens_before = false;
+
+  public final static String opt_event_profile = "--profile";
+  @Parameter(names = opt_event_profile, description = "Output event profiling statistics", hidden = true, descriptionKey = "1300")
+  private boolean profile;
+
+  private final static String opt_event_performance_profile = "--performance-profile";
+  @Parameter(names = opt_event_performance_profile, description = "Output performance profiling statistics", hidden = true, descriptionKey = "1350")
+  private boolean performanceProfile = false;
+
+  public final static String opt_llvm_predict = "--llvm-predict";
+  @Parameter(names = opt_llvm_predict, description = "Run prediction on llvm logs found in given directory", hidden = true, descriptionKey = "1400")
+  public String llvm_predict = null;
+
+  public final static String opt_base_log_dir = "--base-log-dir";
+  @Parameter(names = opt_base_log_dir, description = "The path of the base directory where RV-Predict creates log directories", descriptionKey = "1500")
+  private String baseLogDir = System.getProperty("java.io.tmpdir");
+
+  public final static String opt_log_dirname = "--log-dirname";
+  @Parameter(names = opt_log_dirname, description = "The name of the log directory where RV-Predict stores log files", descriptionKey = "1600")
+  private String logDirName;
+
+  public final static String opt_compact_trace = "--compact-trace";
+  @Parameter(names = opt_compact_trace, description = "Whether to use the compact trace format.", hidden = true, descriptionKey = "1700")
+  private String compact_trace = null;
+
+  public final static String opt_json_report = "--json-report";
+  @Parameter(names = opt_json_report, description = "Whether to use the json output format.", hidden = true, descriptionKey = "1750")
+  private boolean jsonReport;
+
+  public final static String opt_without_generation = "--without-generation";
+  @Parameter(names = opt_without_generation, description = "Whether the trace contains generations.", hidden = true, descriptionKey = "1800")
+  private boolean withoutGeneration = false;
+
+  public final static String opt_include = "--include";
+  @Parameter(names = opt_include, validateWith = PackageValidator.class, description = "Comma separated list of packages to include", descriptionKey = "2000")
+  private String includes;
+
+  public final static String opt_exclude = "--exclude";
+  @Parameter(names = opt_exclude, validateWith = PackageValidator.class, description = "Comma separated list of packages to exclude", descriptionKey = "2100")
+  private String excludes;
+
+  public final static String opt_test_scope = "--test-scope";
+  @Parameter(names = opt_test_scope, description = "Reset analysis", hidden = false, descriptionKey = "2755")
+  private String testScope = "";
+
+  final static String opt_window_size = "--window";
+  @Parameter(names = opt_window_size, description = "Window size (must be >= 64)", descriptionKey = "2200")
+  public int windowSize = 1000;
+  private static int MIN_WINDOW_SIZE = 64;
+
+  final static String opt_no_stacks = "--no-stacks";
+  @Parameter(names = opt_no_stacks, description = "Do not record call stack events and compute stack traces in race report", hidden = true, descriptionKey = "2300")
+  private boolean nostacks = false;
+
+  final static String opt_lib_stacks = "--lib-stacks";
+  @Parameter(names = opt_lib_stacks, description = "Include library stack frames in the race report", hidden = true, descriptionKey = "2350")
+  public static boolean libStacks = false;
+
+  public final static String opt_suppress = "--suppress";
+  @Parameter(names = opt_suppress, description = "Suppress race reports on the fields that match the given (comma-separated) list of regular expressions", descriptionKey = "2400")
+  private String suppress = "";
+
+  private final static String opt_detect_interrupted_thread_race = "--detect-interrupted-thread-race";
+  @Parameter(names = opt_detect_interrupted_thread_race, description = "Detect races between a data access event in a signal/interrupt and a data access event in the interrupted thread.", descriptionKey = "2450", arity = 1)
+  private boolean detectInterruptedThreadRace = true;
+
+  private final static String opt_desired_interrupts_per_signal_and_window = "--desired-interrupts-per-signal-and-window";
+  @Parameter(names = opt_desired_interrupts_per_signal_and_window, description = "Soft target for the number of interrupts for a signal and window.", descriptionKey = "2500", arity = 1)
+  private int desiredInterruptsPerSignalAndWindow = 0;
+
+  /*
+   * final static String opt_smt_solver = "--solver";
+   *
+   * @Parameter(names = opt_smt_solver, description =
+   * "SMT solver to use. <solver> is one of [z3].", hidden = true, descriptionKey
+   * = "2550")
+   * public String smt_solver = "z3";
+   */
+
+  final static String opt_solver_timeout = "--solver-timeout";
+  @Parameter(names = opt_solver_timeout, description = "Solver timeout in seconds", hidden = true, descriptionKey = "2600")
+  public int solver_timeout = 60;
+
+  final static String opt_global_timeout = "--global-timeout";
+  @Parameter(names = opt_global_timeout, description = "Timeout for rv-predict, in seconds. 0 means no timeout.", hidden = true, descriptionKey = "2601")
+  public int global_timeout = 0;
+
+  final static String opt_window_timeout = "--window-timeout";
+  @Parameter(names = opt_window_timeout, description = "Per-window rv-predict timeout in seconds. 0 means no timeout.", hidden = true, descriptionKey = "2602")
+  public int window_timeout = 60;
+
+  final static String opt_parallel_smt = "--parallel-smt";
+  @Parameter(names = opt_parallel_smt, description = "How many parallel SMTs to use. Should always be 1 when analysing doing online Java analysis.", hidden = false, descriptionKey = "2700")
+  public int parallel_smt = 1;
+
+  private final static String opt_max_interrupt_depth = "--max-interrupt-depth";
+  @Parameter(names = opt_max_interrupt_depth, description = "How deep can a signal interrupt a signal which interrupts a signal which interrupts ... "
+      + "which interrupts a signal which interrupts a thread. "
+      + "0 means that interrupt depth checking is disabled, "
+      + "1 means that signals can only interrupt threads, 2 means that signals can also interrupt "
+      + "signals which interrupt threads. If a window contains an interrupt depth greater than "
+      + "--max-interrupt-depth, then we're using the larger value for that window.", hidden = false, descriptionKey = "2700")
+  private int max_interrupt_depth = 0;
+
+  final static String opt_debug = "--debug";
+  @Parameter(names = opt_debug, description = "Output developer debugging information", hidden = true, descriptionKey = "3000")
+  public static boolean debug = false;
+
+  final static String short_opt_verbose = "-v";
+  final static String opt_verbose = "--verbose";
+  @Parameter(names = { short_opt_verbose,
+      opt_verbose }, description = "Generate more verbose output", descriptionKey = "9000")
+  public static boolean verbose;
+
+  final static String opt_version = "--version";
+  @Parameter(names = opt_version, description = "Print product version and exit", descriptionKey = "9100")
+  public static boolean display_version;
+
+  final static String opt_progress = "--progress";
+  @Parameter(names = opt_progress, description = "Report progress", descriptionKey = "9200")
+  public boolean report_progress;
+
+  final static String opt_pair = "--pair";
+  @Parameter(names = opt_pair, description = "Report progress", descriptionKey = "9300")
+  public static boolean report_pair;
+
+  final static String short_opt_help = "-h";
+  final static String opt_help = "--help";
+  @Parameter(names = { short_opt_help,
+      opt_help }, description = "Print help info", help = true, descriptionKey = "9900")
+  public boolean help;
+
+  private static final String RVPREDICT_ARGS_TERMINATOR = "--";
+
+  private final Logger logger = Logger.getGlobal();
+
+  public static Configuration instance(String[] args) {
+    Configuration config = new Configuration();
+    config.parseArguments(args);
+    if (config.report_progress)
+      config.logger.enableProgressReport();
+    config.logger.setVerbose(verbose);
+    return config;
+  }
+
+  private Configuration() {
+  }
+
+  private void parseArguments(String[] args) {
+    this.args = args;
+    jCommander = new JCommander(this);
+    jCommander.setProgramName(RV_PREDICT);
+
+    /* collect all parameter names */
+    Set<String> rvpredictOptionNames = new HashSet<>();
+    for (ParameterDescription parameterDescription : jCommander.getParameters()) {
+      Collections.addAll(rvpredictOptionNames, parameterDescription.getParameter().names());
+    }
+
+    /* attempt to separate rv-predict arguments as much as we can */
+    int endIdx = args.length;
+    for (int i = 0; i < args.length; i++) {
+      if (args[i].startsWith("-") && !rvpredictOptionNames.contains(args[i])
+          || RVPREDICT_ARGS_TERMINATOR.equals(args[i])) {
+        /* stop as soon as we see an unknown option or the terminator */
+        /*
+         * JCommander will throw a parsing error upon unknown option; so
+         * we first separate them manually and then let the JCommander
+         * deal with main parameter
+         */
+        endIdx = i;
+        break;
+      }
+    }
+
+    /* parse rv-predict arguments */
+    try {
+      jCommander.parse(Arrays.copyOf(args, endIdx));
+      rvpredictArgs = Arrays.copyOf(args, endIdx - javaArgs.size());
+    } catch (ParameterException e) {
+      System.err.println("Error: Cannot parse command line arguments.");
+      System.err.println(e.getMessage());
+      System.exit(1);
+    }
+
+    if (help) {
+      usage();
+    }
+    if (display_version) {
+      System.out.println("RV-Predict version "
+          + this.getClass().getPackage().getImplementationVersion());
+    }
+    if (help || display_version) {
+      System.exit(0);
+    }
+
+    initExcludeList();
+    initIncludeList();
+    initSuppressPattern();
+    initTestScope();
+
+    /*
+     * Carefully handle the interaction between options:
+     * 1) 5 different modes: only_profile, only_log, only_predict, llvm_predict,
+     * compact_trace, and log_then_predict;
+     * 2) 2 types of prediction: online and offline;
+     * 3) log directory can be specified or not.
+     *
+     * The following code computes 3 variables, e.g. log, prediction, and log_dir,
+     * to represent the 3 choices above.
+     */
+    if (profile) { /* only profile */
+      if (only_log) {
+        exclusiveOptionsFailure(opt_event_profile, opt_only_log);
+      }
+      if (predict_dir != null) {
+        exclusiveOptionsFailure(opt_event_profile, opt_only_predict);
+      }
+      if (llvm_predict != null) {
+        exclusiveOptionsFailure(opt_event_profile, opt_llvm_predict);
+      }
+      if (compact_trace != null) {
+        exclusiveOptionsFailure(opt_event_profile, opt_compact_trace);
+      }
+      if (offline) {
+        exclusiveOptionsFailure(opt_event_profile, opt_offline);
+      }
+    } else if (only_log) { /* only log */
+      if (predict_dir != null) {
+        exclusiveOptionsFailure(opt_only_log, opt_only_predict);
+      }
+      if (llvm_predict != null) {
+        exclusiveOptionsFailure(opt_only_log, opt_llvm_predict);
+      }
+      if (compact_trace != null) {
+        exclusiveOptionsFailure(opt_only_log, opt_compact_trace);
+      }
+      if (offline) {
+        exclusiveOptionsFailure(opt_only_log, opt_offline);
+      }
+      log = true;
+    } else if (predict_dir != null) { /* only predict */
+      if (llvm_predict != null) {
+        exclusiveOptionsFailure(opt_only_predict, opt_llvm_predict);
+      }
+      if (compact_trace != null) {
+        exclusiveOptionsFailure(opt_only_predict, opt_compact_trace);
+      }
+      setLogDir(Paths.get(predict_dir).toAbsolutePath().normalize().toString());
+      prediction = OFFLINE_PREDICTION;
+    } else if (compact_trace != null) { /* only compact_trace */
+      if (llvm_predict != null) {
+        exclusiveOptionsFailure(opt_compact_trace, opt_llvm_predict);
+      }
+      setLogDir(Paths.get(compact_trace).toAbsolutePath().getParent().normalize().toString());
+      prediction = LLVM_PREDICTION;
+    } else if (llvm_predict != null) { /* only llvm_predict */
+      setLogDir(Paths.get(llvm_predict).toAbsolutePath().normalize().toString());
+      prediction = LLVM_PREDICTION;
+    } else { /* log then predict */
+      log = true;
+      prediction = offline ? OFFLINE_PREDICTION : ONLINE_PREDICTION;
+    }
+
+    /* set window size */
+    windowSize = Math.max(windowSize, MIN_WINDOW_SIZE);
+
+    int startOfJavaArgs = endIdx;
+    if (startOfJavaArgs < args.length
+        && RVPREDICT_ARGS_TERMINATOR.equals(args[startOfJavaArgs])) {
+      startOfJavaArgs++;
+    }
+    for (int i = startOfJavaArgs; i < args.length; i++) {
+      javaArgs.add(args[i]);
+    }
+  }
+
+  public void exclusiveOptionsFailure(String opt1, String opt2) {
+    System.err.println("Error: Options " + opt1 + " and " + opt2 + " are mutually exclusive.");
+    System.exit(1);
+  }
+
+  private String lineWrap(String text, int lineWidth) {
+    StringBuilder builder = new StringBuilder();
+    Scanner scanner = new Scanner(text);
+    while (scanner.hasNextLine()) {
+      int spaceLeft = lineWidth;
+      int spaceWidth = 2;
+      String line = scanner.nextLine();
+      StringTokenizer st = new StringTokenizer(line);
+      while (st.hasMoreTokens()) {
+        String word = st.nextToken();
+        if ((word.length() + spaceWidth) > spaceLeft) {
+          builder.append("\n");
+          spaceLeft = lineWidth - word.length();
+        } else {
+          spaceLeft -= (word.length() + spaceWidth);
+        }
+        builder.append(word);
+        builder.append(' ');
+      }
+      builder.append("\n");
+    }
+    scanner.close();
+    return builder.toString();
+  }
+
+  public void usage() {
+    /*
+     * -- can be used as a terminator for the rv-predict specific options.
+     * The remaining arguments are what one would pass to the java
+     * executable to execute the class/jar The -- option is only required in
+     * the less frequent case when some of the java or program options used
+     * have the same name as some of the rv-predict options (including --).
+     *
+     * Moreover, in the unlikely case when the program takes as options -cp
+     * or -jar and is run as a class (i.e., not using -jar) then the java
+     * -cp option must be used explicitly for disambiguation.
+     */
+
+    // computing names maximum length
+    int max_option_length = 0;
+    for (ParameterDescription parameterDescription : jCommander.getParameters()) {
+      if (parameterDescription.getNames().length() > max_option_length) {
+        max_option_length = parameterDescription.getNames().length();
+      }
+    }
+
+    // Computing usage
+    max_option_length++;
+    String usageHeader = "Usage: " + RV_PREDICT
+        + " [rv_predict_options] [--] "
+        + jCommander.getMainParameterDescription() + "\n";
+    String usage = usageHeader + "  Options:";
+    String shortUsage = usageHeader + "  Common options (use -h -v for a complete list):";
+
+    Map<String, String> usageMap = new TreeMap<>();
+    Map<String, String> shortUsageMap = new TreeMap<>();
+    int spacesBeforeCnt;
+    int spacesAfterCnt;
+    String description;
+    for (ParameterDescription parameterDescription : jCommander.getParameters()) {
+      if (parameterDescription.getNames().contains(opt_llvm_predict)) {
+        // Omit llvm prediction from the list of options (for now)
+        continue;
+      }
+      Parameter parameter = parameterDescription.getParameter().getParameter();
+      String descriptionKey = parameter.descriptionKey();
+      description = "\n";
+      spacesBeforeCnt = 2;
+      spacesAfterCnt = max_option_length - parameterDescription.getNames().length() + 2;
+      if (!descriptionKey.endsWith("00")) {
+        spacesBeforeCnt += 2;
+        spacesAfterCnt -= 2;
+        description = "";
+      }
+
+      String aDefault = getDefault(parameterDescription);
+      description += Strings.repeat(" ", spacesBeforeCnt)
+          + parameterDescription.getNames()
+          + Strings.repeat(" ", spacesAfterCnt)
+          + Joiner.on("\n" + Strings.repeat(" ", 4 + max_option_length)).join(
+              lineWrap(parameterDescription.getDescription(), 80 - max_option_length).split("\\n"))
+          + (aDefault.isEmpty() ? ""
+              : "\n" + Strings.repeat(" ", 4)
+                  + Strings.repeat(" ", max_option_length) + aDefault);
+      usageMap.put(descriptionKey, description);
+      if (!parameter.hidden()) {
+        shortUsageMap.put(descriptionKey, description);
+      }
+
+    }
+
+    if (verbose) {
+      System.out.println(usage);
+      for (String usageCase : usageMap.values())
+        System.out.println(usageCase);
+    } else {
+      System.out.println(shortUsage);
+      for (String usageCase : shortUsageMap.values())
+        System.out.println(usageCase);
+    }
+  }
+
+  private String getDefault(ParameterDescription parameterDescription) {
+    Object aDefault = parameterDescription.getDefault();
+    if (aDefault == null || aDefault.equals(Boolean.FALSE))
+      return "";
+    return "Default: " + aDefault;
+  }
+
+  public String[] getArgs() {
+    return args;
+  }
+
+  public String[] getRVPredictArguments() {
+    return rvpredictArgs;
+  }
+
+  public List<String> getJavaArguments() {
+    return javaArgs;
+  }
+
+  public Logger logger() {
+    return logger;
+  }
+
+  /**
+   * Returns the directory to read and/or write log files.
+   */
+  public String getLogDir() {
+    return logDir;
+  }
+
+  /**
+   * Returns the directory to read and/or write log files or create one if it
+   * is still unavailable.
+   */
+  public String getOrCreateLogDir() throws IOException {
+    if (logDir == null) {
+      Path baseDirPath = Paths.get(baseLogDir);
+      if (!Files.exists(baseDirPath)) {
+        Files.createDirectory(baseDirPath);
+      }
+
+      if (logDirName != null) {
+        Path logDirPath = Paths.get(baseLogDir, logDirName);
+        if (!Files.exists(logDirPath)) {
+          Files.createDirectory(logDirPath);
+        }
+        setLogDir(logDirPath.toString());
+      } else {
+        setLogDir(Files.createTempDirectory(baseDirPath, "rv-predict").toString());
+      }
+    }
+    return logDir;
+  }
+
+  private void setLogDir(String logDir) {
+    this.logDir = logDir;
+    if (compact_trace != null && !debug)
+      return;
+    try {
+      logger.setLogDir(logDir);
+    } catch (FileNotFoundException e) {
+      System.err.println("Error while attempting to create the logger: directory " + logDir
+          + " not found");
+      System.exit(1);
+    }
+  }
+
+  public Path getMetadataPath() {
+    return Paths.get(logDir, METADATA_BIN);
+  }
+
+  public Path getTraceFilePath(int id) {
+    return Paths.get(logDir, id + "_" + TRACE_SUFFIX);
+  }
+
+  public Path getLLVMMetadataPath(String id) {
+    return Paths.get(logDir, id + "_" + METADATA_BIN);
+  }
+
+  public Path getCompactTraceFilePath() {
+    return Paths.get(compact_trace);
+  }
+
+  public boolean isProfiling() {
+    return profile;
+  }
+
+  public boolean isPerformanceProfiling() {
+    return performanceProfile;
+  }
+
+  /**
+   * Checks if the current RV-Predict instance needs to do logging.
+   */
+  public boolean isLogging() {
+    return log;
+  }
+
+  public boolean isOnlinePrediction() {
+    return prediction == ONLINE_PREDICTION;
+  }
+
+  public boolean isOfflinePrediction() {
+    return prediction == OFFLINE_PREDICTION;
+  }
+
+  public boolean isLLVMPrediction() {
+    return prediction == LLVM_PREDICTION;
+  }
+
+  public boolean isCompactTrace() {
+    return compact_trace != null;
+  }
+
+  public boolean isJsonReport() {
+    return jsonReport;
+  }
+
+  public boolean noPrediction() {
+    return prediction == null;
+  }
+
+  public boolean stacks() {
+    return !nostacks;
+  }
+
+  public int maxInterruptDepth() {
+    return max_interrupt_depth;
+  }
+
+  public boolean detectInterruptedThreadRace() {
+    return detectInterruptedThreadRace;
+  }
+
+  public int desiredInterruptsPerSignalAndWindow() {
+    return desiredInterruptsPerSignalAndWindow;
+  }
+
+  public boolean withoutGeneration() {
+    return withoutGeneration;
+  }
+
+  public boolean isDebug() {
+    return debug;
+  }
+}

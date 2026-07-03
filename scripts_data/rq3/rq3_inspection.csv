@@ -1,0 +1,101 @@
+repo,verdict,note
+520github_fw-parallel-task,FALSE,Future.get orders worker write later read
+520github_fw-parallel-task,FALSE,Future.get orders worker write later read
+520github_fw-parallel-task,FALSE,Future.get orders worker write later read
+MountCloud_ffmpeg-operate,TRUE,Worker writes progress; other reads it
+MountCloud_ffmpeg-operate,TRUE,One thread writes done flag; another checks it
+MountCloud_ffmpeg-operate,TRUE,Worker writes state; other reads it
+RuntimeTools_javametrics,TRUE,Listener added; other thread iterates
+RuntimeTools_javametrics,TRUE,Callback writes test list; test reads it
+RuntimeTools_javametrics,TRUE,Callback writes test flag; test reads it
+VaughnVernon_mockroservices-java,TRUE,Callback writes list; test reads size
+VaughnVernon_mockroservices-java,TRUE,Writer locks journal; reader does not
+VaughnVernon_mockroservices-java,TRUE,Writer locks journal; reader does not
+amzn_amazon-instant-access-sdk-java,benign,Shutdown closes acceptor; it is stopping
+amzn_amazon-instant-access-sdk-java,FALSE,Field set before handoff; read after
+amzn_amazon-instant-access-sdk-java,TRUE,One worker clears keys; another reads
+brutusin_json-provider,TRUE,Two threads write same field
+brutusin_json-provider,TRUE,Two threads mutate same set
+brutusin_json-provider,TRUE,Two threads write same provider field
+jalkanen_speed4j,FALSE,Frozen copy handed off before read
+jalkanen_speed4j,FALSE,Frozen copy handed off before read
+520github_fw-perf-test,FALSE,Constructor writes before task starts
+520github_fw-perf-test,FALSE,Constructor writes before task starts
+Azure-Samples_cassandra-proxy,benign,Lazy cache recomputes same message
+Azure-Samples_cassandra-proxy,benign,Lazy cache recomputes same message
+Azure-Samples_cassandra-proxy,benign,Lazy cache recomputes same message
+InfoSec812_sonar-auth-google,TRUE,Mock server and test share state
+InfoSec812_sonar-auth-google,not sure,-
+InfoSec812_sonar-auth-google,not sure,-
+SonarSource_sonar-auth-bitbucket,TRUE,Response headers read during clone
+SonarSource_sonar-auth-bitbucket,TRUE,Mock server and test share state
+bingoohuang_logback-more-appenders,FALSE,Cleanup state set before runnable
+bingoohuang_logback-more-appenders,not sure,-
+castagna_SARQ,TRUE,Searcher state crosses threads
+castagna_SARQ,TRUE,Cache state across phases
+castagna_SARQ,TRUE,Cache state across phases
+cilogi_gaeshiro,not sure,-
+cilogi_gaeshiro,not sure,-
+gwtplus_google-gin,TRUE,Builder state crosses threads
+gwtplus_google-gin,TRUE,Builder state crosses threads
+gwtplus_google-gin,TRUE,Builder state crosses threads
+ImmobilienScout24_yum-repo-server,FALSE,Startup flag published through wait/notify
+buddycloud_buddycloud-server-java,FALSE,Timer hands queue before task runs
+cogroo_cogroo4,not sure,-
+darcy-framework_synq,FALSE,Latch makes exception visible first
+darcy-framework_synq,FALSE,Latch makes exception visible first
+datasift_datasift-java,FALSE,Queue handoff publishes data first
+datasift_datasift-java,FALSE,Queue handoff publishes data first
+gilbutITbook_006955,benign,Atomic size update makes list visible
+gilbutITbook_006955,benign,Size published before assertions read
+gilbutITbook_006955,benign,Size published before assertions read
+gilbutITbook_006955,benign,Size published before assertions read
+opencharles_charles-rest,benign,Shutdown closes handler while server stops
+proofpoint_event-collector,FALSE,Mock verification touches generated mock code
+purecloudlabs_elasticsearch-lambda,benign,ZooKeeper shutdown clears state during stop
+purecloudlabs_elasticsearch-lambda,benign,ZooKeeper shutdown clears state during stop
+purecloudlabs_elasticsearch-lambda,benign,ZooKeeper shutdown clears state during stop
+uia4j_uia-sim,benign,Close sets flag during unwind
+uia4j_uia-sim,FALSE,Error handed off before read
+uia4j_uia-sim,FALSE,Error handed off before read
+xebia-france_xebia-servlet-extras,benign,Shutdown closes socket while other closes it
+520github/fw-parallel-task,FALSE,task related
+520github/fw-parallel-task,FALSE,"task related, safe"
+520github/fw-parallel-task,FALSE,"task related, safe"
+99soft/guartz,FALSE,constructor is always run before the run() method
+99soft/guartz,FALSE,constructor is always run before the run() method
+99soft/guartz,FALSE,init is always run before the run() method
+Ardesco/driver-binary-downloader-maven-plugin,FALSE,"one in init, one in method, can't reoder it to run the method first, even if it can, it is benign (both are null)?"
+Ardesco/driver-binary-downloader-maven-plugin,FALSE,"one in init, one in method, can't reoder it to run the method first"
+Ardesco/driver-binary-downloader-maven-plugin,FALSE,"one in init, one in method, can't reoder it to run the method first"
+InfoSec812/sonar-auth-google,FALSE,"there is no way to call processConnection before int sequenceNumber = 0; is set, so must be false positive"
+zhanyeye/DesSim,TRUE,"the write thread is locked using synchronized, but not the read thread"
+zhanyeye/DesSim,FALSE,"same trace, both write to 0"
+zhanyeye/DesSim,TRUE,"the write thread is locked using synchronized, but not the read thread"
+520github/fw-perf-test,FALSE,"AsyncStatisticsBenchmark has latch, and it will not continue until write+task finished"
+520github/fw-perf-test,FALSE,same reason as above (same class same pattern)
+520github/fw-perf-test,FALSE,"task, also cannot run before init"
+hackingwu/Java-Promise,FALSE,"the init must comes before the write, because write comes from Resolver, and only Promise uses that"
+hackingwu/Java-Promise,FALSE,same reason as above (same class same pattern)
+hackingwu/Java-Promise,FALSE,same reason as above (same class same pattern)
+Azure-Samples/cassandra-proxy,FALSE,"one in init, one in method call, so can't call the method without init finished"
+JavaMoney/jsr354-ri-bp,TRUE,Adding sleep before the write affects the read value
+JavaMoney/jsr354-ri-bp,TRUE,Same as above
+mikebrock/jboss-websockets,benign,"Benign ""don't bother using volatile. a thread race doesn't matter."""
+mikebrock/jboss-websockets,benign,"Benign ""don't bother using volatile. a thread race doesn't matter."""
+mikebrock/jboss-websockets,benign,"Benign ""don't bother using volatile. a thread race doesn't matter."""
+tguzik/m2u,FALSE,"there is no write, they access the same instance field (probably because two threads both access BigDecimal.class?)"
+tguzik/m2u,FALSE,"there is no write, they access the same instance field (probably because two threads both access BigDecimal.class?)"
+tguzik/m2u,FALSE,"there is no write, they access the same instance field (probably because two threads both access BigDecimal.class?)"
+zhanyeye/DesSim,FALSE,"cn.softeng.events.EventManager.execute(EventManager.java:379)) where both threads used has ""synchronized (lockObject)"" in method"
+zhanyeye/DesSim,FALSE,same reason as above
+RuntimeTools/javametrics,TRUE,removing sleep in testMetricsProcessor will produce different order
+RuntimeTools/javametrics,TRUE,same as above
+RuntimeTools/javametrics,TRUE,same as above
+zhanyeye/DesSim,FALSE,"testGeneratorScheduling creates Assign, which create LinkedComponent's numAddMap (init), updateStatistics cannot come before the init"
+zhanyeye/DesSim,FALSE,both threads have sync on lockObject in EventManager
+zhanyeye/DesSim,FALSE,same as the numAddMap above
+gondor/kbop,FALSE,"AbstractKeyedObjectPool uses lock, two threads can't access it at the same time"
+bingoohuang/westid,FALSE,it is in synchronized method (put) and synchronized (this) {} (remove)
+Ardesco/driver-binary-downloader-maven-plugin,FALSE,"one is in init, so you can't call close() unless we inited the object, so always init before close"
+jbarrez/activiti-neo4j,FALSE,both methods are synchronized

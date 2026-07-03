@@ -1,0 +1,14 @@
+package com.runtimeverification.rvpredict.smt.formula;
+
+import com.runtimeverification.rvpredict.smt.visitors.Visitor;
+
+public class Not extends FormulaTerm {
+    protected Not(BoolFormula expr) {
+        super(BooleanOperation.NOT, expr);
+    }
+
+    @Override
+    public void accept(Visitor visitor) throws Exception {
+        visitor.visit(this);
+    }
+}

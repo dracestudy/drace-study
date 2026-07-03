@@ -1,0 +1,565 @@
+REPO: ImmobilienScout24_yum-repo-server
+field de.flapdoodle.embed.process.io.LogWatchStreamProcessor.initWithSuccess:
+    Write in thread 20 holding lock Monitor@1579811681
+      > at de.flapdoodle.embed.process.io.LogWatchStreamProcessor.gotResult(LogWatchStreamProcessor.java:72)
+        - locked Monitor@1579811681 at de.flapdoodle.embed.process.io.LogWatchStreamProcessor.gotResult(LogWatchStreamProcessor.java:n/a)
+        at de.flapdoodle.embed.process.io.LogWatchStreamProcessor.process(LogWatchStreamProcessor.java:55)
+        at de.flapdoodle.embed.process.io.ReaderProcessor.run(ReaderProcessor.java:52)
+    Thread 20 created by thread 1
+        at de.flapdoodle.embed.process.io.ReaderProcessor.<init>(ReaderProcessor.java:43)
+
+    Read in thread 1 holding lock Monitor@615174409
+      > at de.flapdoodle.embed.process.io.LogWatchStreamProcessor.isInitWithSuccess(LogWatchStreamProcessor.java:86)
+        at de.flapdoodle.embed.mongo.AbstractMongoProcess.onAfterProcessStart(AbstractMongoProcess.java:64)
+        at de.flapdoodle.embed.process.runtime.AbstractProcess.<init>(AbstractProcess.java:114)
+        at de.flapdoodle.embed.mongo.MongodExecutable.start(MongodExecutable.java:44)
+        at de.flapdoodle.embed.process.runtime.Executable.start(Executable.java:101)
+        - locked Monitor@615174409 at de.flapdoodle.embed.process.runtime.Executable.start(Executable.java:n/a)
+        at de.is24.infrastructure.gridfs.http.mongo.util.LocalMongoFactory$1.run(LocalMongoFactory.java:78)
+        at de.is24.infrastructure.gridfs.http.utils.retry.RetryUtils$RetryCommand.command(RetryUtils.java:58)
+        at de.is24.infrastructure.gridfs.http.mongo.util.LocalMongoFactory.createMongoProcess(LocalMongoFactory.java:73)
+        at de.is24.infrastructure.gridfs.http.mongo.util.LocalMongoFactoryTest.shouldStartAndStopMongoD(LocalMongoFactoryTest.java:50)
+    Thread 1 is the main thread
+
+REPO: buddycloud_buddycloud-server-java
+field org.buddycloud.channelserver.queue.QueueTimer.queue:
+    Write in thread 1
+      > at org.buddycloud.channelserver.queue.QueueTimer.<init>(ExpiringQueueAbstract.java:99)
+        at org.buddycloud.channelserver.queue.ExpiringPacketQueueTest.testShortExpiryLeadsToPacketsExpiring(ExpiringPacketQueueTest.java:22)
+    Thread 1 is the main thread
+
+    Read in thread 41
+      > at org.buddycloud.channelserver.queue.QueueTimer.run(ExpiringQueueAbstract.java:104)
+    Thread 41 created by thread 1
+        at java.util.Timer.<init>(Timer.java:160)
+
+REPO: cogroo_cogroo4
+field org.xml.sax.helpers.XMLReaderFactory._jarread:
+    Read in thread 16
+      > at org.xml.sax.helpers.XMLReaderFactory.createXMLReader(XMLReaderFactory.java:146)
+        at opennlp.tools.dictionary.serializer.DictionaryEntryPersistor.create(DictionaryEntryPersistor.java:219)
+        at opennlp.tools.dictionary.Dictionary.<init>(Dictionary.java:117)
+        at opennlp.tools.util.model.DictionarySerializer.create(DictionarySerializer.java:30)
+        at opennlp.tools.util.model.BaseModel.finishLoadingArtifacts(BaseModel.java:312)
+        at opennlp.tools.util.model.BaseModel.loadModel(BaseModel.java:242)
+        at opennlp.tools.util.model.BaseModel.<init>(BaseModel.java:176)
+        at org.cogroo.analyzer.ComponentFactory.createTokenizer(ComponentFactory.java:138)
+        at org.cogroo.analyzer.ComponentFactory$2.call(ComponentFactory.java:431)
+    Thread 16 created by thread 1
+        at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:1028)
+
+    Write in thread 15
+      > at org.xml.sax.helpers.XMLReaderFactory.createXMLReader(XMLReaderFactory.java:147)
+        at opennlp.tools.dictionary.serializer.DictionaryEntryPersistor.create(DictionaryEntryPersistor.java:219)
+        at opennlp.tools.dictionary.Dictionary.<init>(Dictionary.java:117)
+        at opennlp.tools.util.model.DictionarySerializer.create(DictionarySerializer.java:30)
+        at opennlp.tools.util.model.BaseModel.finishLoadingArtifacts(BaseModel.java:312)
+        at opennlp.tools.util.model.BaseModel.loadModel(BaseModel.java:242)
+        at opennlp.tools.util.model.BaseModel.<init>(BaseModel.java:176)
+        at org.cogroo.analyzer.ComponentFactory.createSentenceDetector(ComponentFactory.java:107)
+        at org.cogroo.analyzer.ComponentFactory$1.call(ComponentFactory.java:422)
+    Thread 15 created by thread 1
+        at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:1028)
+
+REPO: darcy-framework_synq
+field com.redhat.synq.MultiEvent.throwable:
+    Write in thread 17 holding lock Monitor@192694377
+      > at com.redhat.synq.MultiEvent.finishWithException(MultiEvent.java:123)
+        - locked Monitor@192694377 at com.redhat.synq.MultiEvent.finishWithException(MultiEvent.java:n/a)
+        at com.redhat.synq.MultiEvent.tryWaitUpTo(MultiEvent.java:110)
+        at com.redhat.synq.MultiEvent.lambda$waitUpTo$0(MultiEvent.java:44)
+        at com.redhat.synq.MultiEvent$$Lambda$120.run(Unknown:n/a)
+    Thread 17 created by thread 1
+        at com.redhat.synq.MultiEvent.waitUpTo(MultiEvent.java:47)
+
+    Read in thread 1
+      > at com.redhat.synq.MultiEvent.waitUpTo(MultiEvent.java:56)
+        at com.redhat.synq.Event.waitUpTo(Event.java:131)
+        at com.redhat.synq.MultiEventTest.shouldInterruptEventsAfterOneOccurs(MultiEventTest.java:85)
+    Thread 1 is the main thread
+
+REPO: darcy-framework_synq
+field com.redhat.synq.MultiEvent.throwable:
+    Write in thread 25 holding lock Monitor@254896875
+      > at com.redhat.synq.MultiEvent.finishWithException(MultiEvent.java:123)
+        - locked Monitor@254896875 at com.redhat.synq.MultiEvent.finishWithException(MultiEvent.java:n/a)
+        at com.redhat.synq.MultiEvent.tryWaitUpTo(MultiEvent.java:110)
+        at com.redhat.synq.MultiEvent.lambda$waitUpTo$0(MultiEvent.java:44)
+        at com.redhat.synq.MultiEvent$$Lambda$120.run(Unknown:n/a)
+    Thread 25 created by thread 1
+        at com.redhat.synq.MultiEvent.waitUpTo(MultiEvent.java:47)
+
+    Read in thread 1
+      > at com.redhat.synq.MultiEvent.waitUpTo(MultiEvent.java:73)
+        at com.redhat.synq.MultiEventTest.shouldReturnWhenAdditionalEventOccurs(MultiEventTest.java:74)
+    Thread 1 is the main thread
+
+REPO: datasift_datasift-java
+field com.datasift.client.FutureData.data:
+    Write in thread 47
+      > at com.datasift.client.FutureData.received(FutureData.java:48)
+        at com.datasift.client.DataSiftApiClient$1.apply(DataSiftApiClient.java:59)
+        at io.higgs.http.client.readers.PageReader.done(PageReader.java:24)
+        at io.higgs.http.client.readers.Reader.setCompleted(Reader.java:85)
+        at io.higgs.http.client.Response.setCompleted(Response.java:103)
+        at io.higgs.http.client.ClientHandler.channelRead0(ClientHandler.java:65)
+        at io.netty.channel.SimpleChannelInboundHandler.channelRead(SimpleChannelInboundHandler.java:105)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:342)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:328)
+        at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:321)
+        at io.netty.channel.ChannelInboundHandlerAdapter.channelRead(ChannelInboundHandlerAdapter.java:86)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:342)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:328)
+        at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:321)
+        at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:102)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:342)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:328)
+        at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:321)
+        at io.netty.channel.CombinedChannelDuplexHandler$DelegatingChannelHandlerContext.fireChannelRead(CombinedChannelDuplexHandler.java:428)
+        at io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:293)
+        at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:267)
+        at io.netty.channel.CombinedChannelDuplexHandler.channelRead(CombinedChannelDuplexHandler.java:243)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:342)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:328)
+        at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:321)
+        at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1280)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:342)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:328)
+        at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:890)
+        at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:131)
+        at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:564)
+        at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:505)
+        at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:419)
+        at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:391)
+        at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:112)
+    Thread 47 created by thread 1
+        at io.netty.util.concurrent.SingleThreadEventExecutor.startThread(SingleThreadEventExecutor.java:725)
+
+    Read in thread 1 holding lock Monitor@446693857
+      > at com.datasift.client.FutureData.sync(FutureData.java:110)
+        - locked Monitor@446693857 at com.datasift.client.FutureData.sync(FutureData.java:94)
+        at com.datasift.client.mock.TestPushAPIWithMocks.testIfUserCanRetrieveLogDetails(TestPushAPIWithMocks.java:240)
+    Thread 1 is the main thread
+
+REPO: datasift_datasift-java
+field com.datasift.client.FutureData.data:
+    Write in thread 47
+      > at com.datasift.client.FutureData.received(FutureData.java:48)
+        at com.datasift.client.DataSiftApiClient$1.apply(DataSiftApiClient.java:59)
+        at io.higgs.http.client.readers.PageReader.done(PageReader.java:24)
+        at io.higgs.http.client.readers.Reader.setCompleted(Reader.java:85)
+        at io.higgs.http.client.Response.setCompleted(Response.java:103)
+        at io.higgs.http.client.ClientHandler.channelRead0(ClientHandler.java:65)
+        at io.netty.channel.SimpleChannelInboundHandler.channelRead(SimpleChannelInboundHandler.java:105)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:342)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:328)
+        at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:321)
+        at io.netty.channel.ChannelInboundHandlerAdapter.channelRead(ChannelInboundHandlerAdapter.java:86)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:342)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:328)
+        at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:321)
+        at io.netty.handler.codec.MessageToMessageDecoder.channelRead(MessageToMessageDecoder.java:102)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:342)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:328)
+        at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:321)
+        at io.netty.channel.CombinedChannelDuplexHandler$DelegatingChannelHandlerContext.fireChannelRead(CombinedChannelDuplexHandler.java:428)
+        at io.netty.handler.codec.ByteToMessageDecoder.fireChannelRead(ByteToMessageDecoder.java:293)
+        at io.netty.handler.codec.ByteToMessageDecoder.channelRead(ByteToMessageDecoder.java:267)
+        at io.netty.channel.CombinedChannelDuplexHandler.channelRead(CombinedChannelDuplexHandler.java:243)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:342)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:328)
+        at io.netty.channel.AbstractChannelHandlerContext.fireChannelRead(AbstractChannelHandlerContext.java:321)
+        at io.netty.channel.DefaultChannelPipeline$HeadContext.channelRead(DefaultChannelPipeline.java:1280)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:342)
+        at io.netty.channel.AbstractChannelHandlerContext.invokeChannelRead(AbstractChannelHandlerContext.java:328)
+        at io.netty.channel.DefaultChannelPipeline.fireChannelRead(DefaultChannelPipeline.java:890)
+        at io.netty.channel.nio.AbstractNioByteChannel$NioByteUnsafe.read(AbstractNioByteChannel.java:131)
+        at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:564)
+        at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:505)
+        at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:419)
+        at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:391)
+        at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:112)
+    Thread 47 created by thread 1
+        at io.netty.util.concurrent.SingleThreadEventExecutor.startThread(SingleThreadEventExecutor.java:725)
+
+    Read in thread 1
+      > at com.datasift.client.FutureData.sync(FutureData.java:91)
+        at com.datasift.client.push.DataSiftPush.log(DataSiftPush.java:262)
+        at com.datasift.client.mock.TestPushAPIWithMocks.testIfUserCanRetrieveLogDetails(TestPushAPIWithMocks.java:240)
+    Thread 1 is the main thread
+
+REPO: gilbutITbook_006955
+field java.util.ArrayList.$state:
+    Write in thread 22
+      > at io.reactivex.internal.util.VolatileSizeArrayList.add(VolatileSizeArrayList.java:71)
+        at io.reactivex.internal.operators.flowable.FlowableInterval$IntervalSubscriber.run(FlowableInterval.java:93)
+        at io.reactivex.internal.schedulers.ScheduledDirectPeriodicTask.run(ScheduledDirectPeriodicTask.java:38)
+    Thread 22 created by thread 1
+        at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:1028)
+
+    Read in thread 1
+      > at io.reactivex.internal.util.VolatileSizeArrayList.get(VolatileSizeArrayList.java:124)
+        at chap06.sec04.TestSubscriberTest.TestSubscriber사용의간단한예제(TestSubscriberTest.java:30)
+    Thread 1 is the main thread
+
+REPO: gilbutITbook_006955
+field io.reactivex.internal.util.VolatileSizeArrayList.$state:
+    Read in thread 1
+      > at io.reactivex.observers.BaseTestConsumer.assertValueCount(BaseTestConsumer.java:513)
+        at io.reactivex.observers.BaseTestConsumer.assertNoValues(BaseTestConsumer.java:525)
+        at io.reactivex.observers.BaseTestConsumer.assertEmpty(BaseTestConsumer.java:877)
+        at chap06.sec04.TestSubscriberTest.TestSubscriber사용의간단한예제(TestSubscriberTest.java:23)
+    Thread 1 is the main thread
+
+    Write in thread 22
+      > at io.reactivex.subscribers.TestSubscriber.onNext(TestSubscriber.java:210)
+        at io.reactivex.internal.operators.flowable.FlowableInterval$IntervalSubscriber.run(FlowableInterval.java:93)
+        at io.reactivex.internal.schedulers.ScheduledDirectPeriodicTask.run(ScheduledDirectPeriodicTask.java:38)
+    Thread 22 created by thread 1
+        at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:1028)
+
+REPO: gilbutITbook_006955
+field io.reactivex.internal.util.VolatileSizeArrayList.$state:
+    Read in thread 1
+      > at io.reactivex.observers.BaseTestConsumer.assertValues(BaseTestConsumer.java:536)
+        at chap06.sec04.TestSubscriberTest.TestSubscriber사용의간단한예제(TestSubscriberTest.java:30)
+    Thread 1 is the main thread
+
+    Write in thread 22
+      > at io.reactivex.subscribers.TestSubscriber.onNext(TestSubscriber.java:210)
+        at io.reactivex.internal.operators.flowable.FlowableInterval$IntervalSubscriber.run(FlowableInterval.java:93)
+        at io.reactivex.internal.schedulers.ScheduledDirectPeriodicTask.run(ScheduledDirectPeriodicTask.java:38)
+    Thread 22 created by thread 1
+        at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:1028)
+
+REPO: gilbutITbook_006955
+field io.reactivex.internal.util.VolatileSizeArrayList.$state:
+    Read in thread 1
+      > at io.reactivex.observers.BaseTestConsumer.assertValues(BaseTestConsumer.java:542)
+        at chap06.sec04.TestSubscriberTest.TestSubscriber사용의간단한예제(TestSubscriberTest.java:30)
+    Thread 1 is the main thread
+
+    Write in thread 22
+      > at io.reactivex.subscribers.TestSubscriber.onNext(TestSubscriber.java:210)
+        at io.reactivex.internal.operators.flowable.FlowableInterval$IntervalSubscriber.run(FlowableInterval.java:93)
+        at io.reactivex.internal.schedulers.ScheduledDirectPeriodicTask.run(ScheduledDirectPeriodicTask.java:38)
+    Thread 22 created by thread 1
+        at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:1028)
+
+REPO: opencharles_charles-rest
+field com.icegreen.greenmail.smtp.SmtpHandler._quitting:
+    Write in thread 1 holding locks Monitor@1446243714, Monitor@213383793, Monitor@572508133
+      > at com.icegreen.greenmail.smtp.SmtpHandler.close(SmtpHandler.java:137)
+        at org.slf4j.impl.Log4jLoggerAdapter.isTraceEnabled(Log4jLoggerAdapter.java:101)
+        at com.icegreen.greenmail.smtp.SmtpHandler.close(SmtpHandler.java:129)
+        at com.icegreen.greenmail.server.AbstractServer.quit(AbstractServer.java:199)
+        - locked Monitor@572508133 at com.icegreen.greenmail.server.AbstractServer.quit(AbstractServer.java:197)
+        at com.icegreen.greenmail.server.AbstractServer.stopService(AbstractServer.java:278)
+        - locked Monitor@213383793 at com.icegreen.greenmail.server.AbstractServer.stopService(AbstractServer.java:n/a)
+        at com.icegreen.greenmail.server.AbstractServer.stopService(AbstractServer.java:296)
+        at com.icegreen.greenmail.util.GreenMail.stop(GreenMail.java:122)
+        - locked Monitor@1446243714 at com.icegreen.greenmail.util.GreenMail.stop(GreenMail.java:n/a)
+        at com.amihaiemil.charles.github.SendEmailTestCase.sendsEmailFromGivenUser(SendEmailTestCase.java:128)
+    Thread 1 is the main thread
+
+    Read in thread 14
+      > at com.icegreen.greenmail.smtp.SmtpHandler.run(SmtpHandler.java:54)
+        at com.icegreen.greenmail.smtp.SmtpHandler.run(SmtpHandler.java:55)
+        at com.icegreen.greenmail.server.AbstractServer$1.run(AbstractServer.java:158)
+    Thread 14 created by thread 13
+        at com.icegreen.greenmail.server.AbstractServer.handleClientSocket(AbstractServer.java:166)
+
+REPO: proofpoint_event-collector
+array element #0:
+    Write in thread 36
+      > at com.proofpoint.event.collector.queue.Queue$$EnhancerByMockitoWithCGLIB$$9724c40a.enqueueAllOrDrop(<generated>:n/a)
+        at com.proofpoint.event.collector.AsyncBatchProcessor$EventPoster.run(AsyncBatchProcessor.java:118)
+    Thread 36 created by thread 1
+        at java.util.concurrent.ThreadPoolExecutor.addWorker(ThreadPoolExecutor.java:1028)
+
+    Read in thread 1
+      > at org.mockito.internal.invocation.ArgumentsComparator.argumentsMatch(ArgumentsComparator.java:26)
+        at org.mockito.internal.invocation.ArgumentsComparator.argumentsMatch(ArgumentsComparator.java:18)
+        at org.mockito.internal.invocation.InvocationMatcher.matches(InvocationMatcher.java:58)
+        at org.mockito.internal.invocation.InvocationsFinder$RemoveNotMatching.isOut(InvocationsFinder.java:145)
+        at org.mockito.internal.util.collections.ListUtil.filter(ListUtil.java:16)
+        at org.mockito.internal.invocation.InvocationsFinder.findInvocations(InvocationsFinder.java:20)
+        at org.mockito.internal.verification.checkers.MissingInvocationChecker.check(MissingInvocationChecker.java:32)
+        at org.mockito.internal.verification.Times.verify(Times.java:36)
+        at org.mockito.internal.verification.VerificationWithTimeoutImpl.verify(VerificationWithTimeoutImpl.java:28)
+        at org.mockito.verification.Timeout.verify(Timeout.java:44)
+        at org.mockito.internal.verification.MockAwareVerificationMode.verify(MockAwareVerificationMode.java:21)
+        at org.mockito.internal.handler.MockHandlerImpl.handle(MockHandlerImpl.java:72)
+        at org.mockito.internal.handler.NullResultGuardian.handle(NullResultGuardian.java:29)
+        at org.mockito.internal.handler.InvocationNotifierHandler.handle(InvocationNotifierHandler.java:38)
+        at org.mockito.internal.creation.MethodInterceptorFilter.intercept(MethodInterceptorFilter.java:51)
+        at com.proofpoint.event.collector.queue.Queue$$EnhancerByMockitoWithCGLIB$$9724c40a.enqueueAllOrDrop(<generated>:n/a)
+        at com.proofpoint.event.collector.TestAsyncBatchProcessor.test_failedEntries_GetEnqueued(TestAsyncBatchProcessor.java:319)
+        at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:84)
+        at org.testng.internal.Invoker.invokeMethod(Invoker.java:714)
+        at org.testng.internal.Invoker.invokeTestMethod(Invoker.java:901)
+        at org.testng.internal.Invoker.invokeTestMethods(Invoker.java:1231)
+        at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:127)
+        at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:111)
+        at org.testng.TestRunner.privateRun(TestRunner.java:767)
+        at org.testng.TestRunner.run(TestRunner.java:617)
+        at org.testng.SuiteRunner.runTest(SuiteRunner.java:334)
+        at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:329)
+        at org.testng.SuiteRunner.privateRun(SuiteRunner.java:291)
+        at org.testng.SuiteRunner.run(SuiteRunner.java:240)
+        at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+        at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:86)
+        at org.testng.TestNG.runSuitesSequentially(TestNG.java:1224)
+        at org.testng.TestNG.runSuitesLocally(TestNG.java:1149)
+        at org.testng.TestNG.run(TestNG.java:1057)
+    Thread 1 is the main thread
+
+REPO: purecloudlabs_elasticsearch-lambda
+field org.apache.zookeeper.server.ZKDatabase.minCommittedLog:
+    Write in thread 1
+      > at org.apache.zookeeper.server.ZKDatabase.clear(ZKDatabase.java:105)
+        at org.apache.zookeeper.server.ZooKeeperServer.shutdown(ZooKeeperServer.java:433)
+        at org.apache.zookeeper.server.NIOServerCnxnFactory.shutdown(NIOServerCnxnFactory.java:271)
+        at org.apache.zookeeper.server.ZooKeeperServerMain.shutdown(ZooKeeperServerMain.java:127)
+        at org.apache.curator.test.TestingZooKeeperMain.close(TestingZooKeeperMain.java:103)
+        at org.apache.curator.test.TestingZooKeeperServer.stop(TestingZooKeeperServer.java:94)
+        at org.apache.curator.test.TestingZooKeeperServer.close(TestingZooKeeperServer.java:106)
+        at org.apache.curator.test.TestingServer.close(TestingServer.java:112)
+        at com.inin.analytics.IndexRotationStrategyZookeeperTest.close(IndexRotationStrategyZookeeperTest.java:51)
+        at org.mockito.internal.runners.JUnit45AndHigherRunnerImpl.run(JUnit45AndHigherRunnerImpl.java:37)
+        at org.mockito.runners.MockitoJUnitRunner.run(MockitoJUnitRunner.java:62)
+    Thread 1 is the main thread
+
+    Write in thread 13
+      > at org.apache.zookeeper.server.ZKDatabase.clear(ZKDatabase.java:105)
+        at org.apache.zookeeper.server.ZooKeeperServer.shutdown(ZooKeeperServer.java:433)
+        at org.apache.zookeeper.server.ZooKeeperServerMain.runFromConfig(ZooKeeperServerMain.java:115)
+        at org.apache.curator.test.TestingZooKeeperMain.runFromConfig(TestingZooKeeperMain.java:68)
+        at org.apache.curator.test.TestingZooKeeperServer$1.run(TestingZooKeeperServer.java:134)
+    Thread 13 created by thread 1
+        at org.apache.curator.test.TestingZooKeeperServer.start(TestingZooKeeperServer.java:125)
+
+REPO: purecloudlabs_elasticsearch-lambda
+field org.apache.zookeeper.server.ZKDatabase.maxCommittedLog:
+    Write in thread 1
+      > at org.apache.zookeeper.server.ZKDatabase.clear(ZKDatabase.java:106)
+        at org.apache.zookeeper.server.ZooKeeperServer.shutdown(ZooKeeperServer.java:433)
+        at org.apache.zookeeper.server.NIOServerCnxnFactory.shutdown(NIOServerCnxnFactory.java:271)
+        at org.apache.zookeeper.server.ZooKeeperServerMain.shutdown(ZooKeeperServerMain.java:127)
+        at org.apache.curator.test.TestingZooKeeperMain.close(TestingZooKeeperMain.java:103)
+        at org.apache.curator.test.TestingZooKeeperServer.stop(TestingZooKeeperServer.java:94)
+        at org.apache.curator.test.TestingZooKeeperServer.close(TestingZooKeeperServer.java:106)
+        at org.apache.curator.test.TestingServer.close(TestingServer.java:112)
+        at com.inin.analytics.IndexRotationStrategyZookeeperTest.close(IndexRotationStrategyZookeeperTest.java:51)
+        at org.mockito.internal.runners.JUnit45AndHigherRunnerImpl.run(JUnit45AndHigherRunnerImpl.java:37)
+        at org.mockito.runners.MockitoJUnitRunner.run(MockitoJUnitRunner.java:62)
+    Thread 1 is the main thread
+
+    Write in thread 13
+      > at org.apache.zookeeper.server.ZKDatabase.clear(ZKDatabase.java:106)
+        at org.apache.zookeeper.server.ZooKeeperServer.shutdown(ZooKeeperServer.java:433)
+        at org.apache.zookeeper.server.ZooKeeperServerMain.runFromConfig(ZooKeeperServerMain.java:115)
+        at org.apache.curator.test.TestingZooKeeperMain.runFromConfig(TestingZooKeeperMain.java:68)
+        at org.apache.curator.test.TestingZooKeeperServer$1.run(TestingZooKeeperServer.java:134)
+    Thread 13 created by thread 1
+        at org.apache.curator.test.TestingZooKeeperServer.start(TestingZooKeeperServer.java:125)
+
+REPO: purecloudlabs_elasticsearch-lambda
+field org.apache.zookeeper.server.ZKDatabase.dataTree:
+    Write in thread 1
+      > at org.apache.zookeeper.server.ZKDatabase.clear(ZKDatabase.java:110)
+        at org.apache.zookeeper.server.ZooKeeperServer.shutdown(ZooKeeperServer.java:433)
+        at org.apache.zookeeper.server.NIOServerCnxnFactory.shutdown(NIOServerCnxnFactory.java:271)
+        at org.apache.zookeeper.server.ZooKeeperServerMain.shutdown(ZooKeeperServerMain.java:127)
+        at org.apache.curator.test.TestingZooKeeperMain.close(TestingZooKeeperMain.java:103)
+        at org.apache.curator.test.TestingZooKeeperServer.stop(TestingZooKeeperServer.java:94)
+        at org.apache.curator.test.TestingZooKeeperServer.close(TestingZooKeeperServer.java:106)
+        at org.apache.curator.test.TestingServer.close(TestingServer.java:112)
+        at com.inin.analytics.IndexRotationStrategyZookeeperTest.close(IndexRotationStrategyZookeeperTest.java:51)
+        at org.mockito.internal.runners.JUnit45AndHigherRunnerImpl.run(JUnit45AndHigherRunnerImpl.java:37)
+        at org.mockito.runners.MockitoJUnitRunner.run(MockitoJUnitRunner.java:62)
+    Thread 1 is the main thread
+
+    Write in thread 13
+      > at org.apache.zookeeper.server.ZKDatabase.clear(ZKDatabase.java:110)
+        at org.apache.zookeeper.server.ZooKeeperServer.shutdown(ZooKeeperServer.java:433)
+        at org.apache.zookeeper.server.ZooKeeperServerMain.runFromConfig(ZooKeeperServerMain.java:115)
+        at org.apache.curator.test.TestingZooKeeperMain.runFromConfig(TestingZooKeeperMain.java:68)
+        at org.apache.curator.test.TestingZooKeeperServer$1.run(TestingZooKeeperServer.java:134)
+    Thread 13 created by thread 1
+        at org.apache.curator.test.TestingZooKeeperServer.start(TestingZooKeeperServer.java:125)
+
+REPO: uia4j_uia-sim
+field uia.cor.Yield2Way.closed:
+    Write in thread 38 holding lock Monitor@432092375
+      > at uia.cor.Yield2Way.close(Yield2Way.java:262)
+        - locked Monitor@432092375 at uia.cor.Yield2Way.close(Yield2Way.java:n/a)
+        at uia.sim.TimeoutTest.lambda$null$4(TimeoutTest.java:106)
+        at uia.sim.TimeoutTest$$Lambda$295.accept(Unknown:n/a)
+        at uia.cor.Yield2Way.running(Yield2Way.java:315)
+        at uia.cor.Yield2Way$$Lambda$90.run(Unknown:n/a)
+    Thread 38 created by thread 37
+        at uia.cor.Yield2Way.accept(Yield2Way.java:73)
+
+    Read in thread 1 holding locks Monitor@1028135144, Monitor@1136423704, Monitor@1485249976, Monitor@409529684
+      > at uia.cor.Yield2Way.next(Yield2Way.java:165)
+        at uia.cor.Generator2Way.next(Generator2Way.java:73)
+        - locked Monitor@409529684 at uia.cor.Generator2Way.next(Generator2Way.java:n/a)
+        at uia.sim.events.Process.resume(Process.java:181)
+        - locked Monitor@1485249976 at uia.sim.events.Process.resume(Process.java:n/a)
+        at uia.sim.events.Process$$Lambda$91.accept(Unknown:n/a)
+        at uia.sim.Event.callback(Event.java:364)
+        - locked Monitor@1136423704 at uia.sim.Event.callback(Event.java:n/a)
+        at uia.sim.Env.stepOne(Env.java:524)
+        at uia.sim.Env$$Lambda$226.get(Unknown:n/a)
+        at uia.sim.Env.run(Env.java:395)
+        - locked Monitor@1028135144 at uia.sim.Env.run(Env.java:n/a)
+        at uia.sim.TimeoutTest.testTrigger(TimeoutTest.java:120)
+    Thread 1 is the main thread
+
+REPO: uia4j_uia-sim
+field uia.cor.Yield2Way.error:
+    Write in thread 1 holding locks Monitor@1736227182, Monitor@1426652812, Monitor@2017959723, Monitor@1155169971
+      > at uia.cor.Yield2Way.error(Yield2Way.java:139)
+        at uia.cor.Generator2Way.errorNext(Generator2Way.java:98)
+        - locked Monitor@1155169971 at uia.cor.Generator2Way.errorNext(Generator2Way.java:n/a)
+        at uia.sim.events.Process.resume(Process.java:171)
+        - locked Monitor@2017959723 at uia.sim.events.Process.resume(Process.java:n/a)
+        at uia.sim.events.Interruption.interrupt(Interruption.java:67)
+        at uia.sim.events.Interruption$$Lambda$285.accept(Unknown:n/a)
+        at uia.sim.Event.callback(Event.java:364)
+        - locked Monitor@1426652812 at uia.sim.Event.callback(Event.java:n/a)
+        at uia.sim.Env.stepOne(Env.java:524)
+        at uia.sim.Env$$Lambda$226.get(Unknown:n/a)
+        at uia.sim.Env.run(Env.java:395)
+        - locked Monitor@1736227182 at uia.sim.Env.run(Env.java:n/a)
+        at uia.sim.resources.ResourceTest.test2(ResourceTest.java:40)
+    Thread 1 is the main thread
+
+    Read in thread 22
+      > at uia.cor.Yield2Way.testError(Yield2Way.java:327)
+        at uia.cor.Yield2Way.call(Yield2Way.java:194)
+        at uia.sim.Processable.yield(Processable.java:138)
+        at uia.sim.resources.ResourceTest$Car2.run(ResourceTest.java:92)
+        at uia.sim.Processable.readyToGo(Processable.java:160)
+        at uia.sim.Processable$$Lambda$89.accept(Unknown:n/a)
+        at uia.cor.Yield2Way.running(Yield2Way.java:315)
+        at uia.cor.Yield2Way$$Lambda$90.run(Unknown:n/a)
+    Thread 22 created by thread 1
+        at uia.cor.Yield2Way.accept(Yield2Way.java:73)
+
+REPO: uia4j_uia-sim
+field uia.cor.Yield2Way.error:
+    Write in thread 1 holding locks Monitor@1736227182, Monitor@1426652812, Monitor@2017959723, Monitor@1155169971
+      > at uia.cor.Yield2Way.error(Yield2Way.java:139)
+        at uia.cor.Generator2Way.errorNext(Generator2Way.java:98)
+        - locked Monitor@1155169971 at uia.cor.Generator2Way.errorNext(Generator2Way.java:n/a)
+        at uia.sim.events.Process.resume(Process.java:171)
+        - locked Monitor@2017959723 at uia.sim.events.Process.resume(Process.java:n/a)
+        at uia.sim.events.Interruption.interrupt(Interruption.java:67)
+        at uia.sim.events.Interruption$$Lambda$285.accept(Unknown:n/a)
+        at uia.sim.Event.callback(Event.java:364)
+        - locked Monitor@1426652812 at uia.sim.Event.callback(Event.java:n/a)
+        at uia.sim.Env.stepOne(Env.java:524)
+        at uia.sim.Env$$Lambda$226.get(Unknown:n/a)
+        at uia.sim.Env.run(Env.java:395)
+        - locked Monitor@1736227182 at uia.sim.Env.run(Env.java:n/a)
+        at uia.sim.resources.ResourceTest.test2(ResourceTest.java:40)
+    Thread 1 is the main thread
+
+    Read in thread 22
+      > at uia.cor.Yield2Way.testError(Yield2Way.java:328)
+        at uia.cor.Yield2Way.call(Yield2Way.java:194)
+        at uia.sim.Processable.yield(Processable.java:138)
+        at uia.sim.resources.ResourceTest$Car2.run(ResourceTest.java:92)
+        at uia.sim.Processable.readyToGo(Processable.java:160)
+        at uia.sim.Processable$$Lambda$89.accept(Unknown:n/a)
+        at uia.cor.Yield2Way.running(Yield2Way.java:315)
+        at uia.cor.Yield2Way$$Lambda$90.run(Unknown:n/a)
+    Thread 22 created by thread 1
+        at uia.cor.Yield2Way.accept(Yield2Way.java:73)
+
+REPO: xebia-france_xebia-servlet-extras
+field org.mortbay.io.bio.StreamEndPoint._in:
+    Write in thread 1 holding locks Monitor@715378067, Monitor@671467883
+      > at org.mortbay.io.bio.SocketEndPoint.close(SocketEndPoint.java:75)
+        at org.mortbay.jetty.bio.SocketConnector.doStop(SocketConnector.java:165)
+        at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:76)
+        - locked Monitor@671467883 at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:69)
+        at org.mortbay.jetty.Server.doStop(Server.java:280)
+        at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:76)
+        - locked Monitor@715378067 at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:69)
+        at fr.xebia.servlet.filter.ExpiresFilterTest.validate(ExpiresFilterTest.java:429)
+        at fr.xebia.servlet.filter.ExpiresFilterTest.testExcludedResponseStatusCode(ExpiresFilterTest.java:229)
+    Thread 1 is the main thread
+
+    Write in thread 14
+      > at org.mortbay.io.bio.SocketEndPoint.close(SocketEndPoint.java:75)
+        at org.slf4j.impl.Log4jLoggerAdapter.debug(Log4jLoggerAdapter.java:250)
+        at org.mortbay.log.Slf4jLog.debug(Slf4jLog.java:40)
+        at org.mortbay.log.Log.debug(Log.java:112)
+        at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:233)
+        at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:582)
+    Thread 14 created by thread 1
+        at org.mortbay.thread.QueuedThreadPool.newThread(QueuedThreadPool.java:462)
+
+REPO: xebia-france_xebia-servlet-extras
+field org.mortbay.io.bio.StreamEndPoint._out:
+    Write in thread 1 holding locks Monitor@715378067, Monitor@671467883
+      > at org.mortbay.io.bio.SocketEndPoint.close(SocketEndPoint.java:76)
+        at org.mortbay.jetty.bio.SocketConnector.doStop(SocketConnector.java:165)
+        at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:76)
+        - locked Monitor@671467883 at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:69)
+        at org.mortbay.jetty.Server.doStop(Server.java:280)
+        at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:76)
+        - locked Monitor@715378067 at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:69)
+        at fr.xebia.servlet.filter.ExpiresFilterTest.validate(ExpiresFilterTest.java:429)
+        at fr.xebia.servlet.filter.ExpiresFilterTest.testExcludedResponseStatusCode(ExpiresFilterTest.java:229)
+    Thread 1 is the main thread
+
+    Write in thread 14
+      > at org.mortbay.io.bio.SocketEndPoint.close(SocketEndPoint.java:76)
+        at org.mortbay.jetty.bio.SocketConnector$Connection.run(SocketConnector.java:234)
+        at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:582)
+    Thread 14 created by thread 1
+        at org.mortbay.thread.QueuedThreadPool.newThread(QueuedThreadPool.java:462)
+
+REPO: xebia-france_xebia-servlet-extras
+field java.util.HashSet.$state:
+    Write in thread 14 holding lock Monitor@2003496028
+      > at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:644)
+        - locked Monitor@2003496028 at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:642)
+    Thread 14 created by thread 1
+        at org.mortbay.thread.QueuedThreadPool.newThread(QueuedThreadPool.java:462)
+
+    Read in thread 1 holding locks Monitor@715378067, Monitor@678433396
+      > at org.mortbay.thread.QueuedThreadPool.doStop(QueuedThreadPool.java:430)
+        at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:76)
+        - locked Monitor@678433396 at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:69)
+        at org.mortbay.jetty.Server.doStop(Server.java:291)
+        at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:76)
+        - locked Monitor@715378067 at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:69)
+        at fr.xebia.servlet.filter.ExpiresFilterTest.validate(ExpiresFilterTest.java:429)
+        at fr.xebia.servlet.filter.ExpiresFilterTest.testExcludedResponseStatusCode(ExpiresFilterTest.java:229)
+    Thread 1 is the main thread
+
+REPO: xebia-france_xebia-servlet-extras
+field java.util.HashSet.$state:
+    Write in thread 18 holding lock Monitor@1426435610
+      > at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:644)
+        - locked Monitor@1426435610 at org.mortbay.thread.QueuedThreadPool$PoolThread.run(QueuedThreadPool.java:642)
+    Thread 18 created by thread 1
+        at org.mortbay.thread.QueuedThreadPool.newThread(QueuedThreadPool.java:462)
+
+    Read in thread 1 holding locks Monitor@1815007437, Monitor@2130357594
+      > at org.mortbay.thread.QueuedThreadPool.doStop(QueuedThreadPool.java:443)
+        at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:76)
+        - locked Monitor@2130357594 at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:69)
+        at org.mortbay.jetty.Server.doStop(Server.java:291)
+        at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:76)
+        - locked Monitor@1815007437 at org.mortbay.component.AbstractLifeCycle.stop(AbstractLifeCycle.java:69)
+        at fr.xebia.servlet.filter.ExpiresFilterTest.validate(ExpiresFilterTest.java:429)
+        at fr.xebia.servlet.filter.ExpiresFilterTest.validate(ExpiresFilterTest.java:351)
+        at fr.xebia.servlet.filter.ExpiresFilterTest.testUseContentTypeExpiresConfiguration(ExpiresFilterTest.java:277)
+    Thread 1 is the main thread
+
